@@ -1,0 +1,45 @@
+package app
+
+templ Home() {
+	<html>
+		@head()
+		@body()
+	</html>
+}
+
+templ head() {
+	<head>
+		<title>Telegram Sticker Maker</title>
+		<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+	</head>
+}
+
+templ header() {
+	<header>
+		<h1>Create Stickers</h1>
+	</header>
+}
+
+templ body() {
+	@header()
+	<div>
+		<form id="form" hx-encoding="multipart/form-data" hx-post="/api/convert" hx-target="#result">
+			<input type="file" name="image"/>
+			<button>
+				Convert
+			</button>
+			<progress id="progress" value="0" max="100"></progress>
+		</form>
+		<img id="result"/>
+		<script>
+        htmx.on('#form', 'htmx:xhr:progress', function(evt) {
+          htmx.find('#progress').setAttribute('value', evt.detail.loaded/evt.detail.total * 100)
+        });
+        htmx.on('#form', 'htmx:afterOnLoad', function(evt) {
+          console.log(evt)
+          let f = evt.detail.xhr.response
+          htmx.find('#result').setAttribute('src', "data:image/png;base64," + f)
+        })
+    </script>
+	</div>
+}
